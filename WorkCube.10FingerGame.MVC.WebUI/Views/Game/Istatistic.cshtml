@@ -1,0 +1,36 @@
+﻿@model List<WorkCube._10FingerGame.Entity.Entities.Skor>
+@{
+    ViewBag.Title = "Istatistic";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row" style="margin-top:25px;">
+    <div class="col-md-2"></div>
+    <div class="col-md-8" >
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">DBK</th>
+                    <th scope="col">DBV</th>
+                    <th scope="col">Dogru</th>
+                    <th scope="col">Yanlıs</th>
+                    <th scope="col">Toplam</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var skor in Model)  //her kullanıcının idsine göre sonuçların istatistik sayfasında gösterilmesi işlemleri.
+                {
+                    <tr>
+                        <td>@skor.DBK</td>
+                        <td>@skor.DBV</td>
+                        <td>@skor.Dogru</td>
+                        <td>@skor.Yanlis</td>
+                        <td>@skor.Toplam</td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+

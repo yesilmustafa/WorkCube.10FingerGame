@@ -1,0 +1,179 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+        <div class="row">
+            <button class="btn btn-primary btn-block" onclick="GameStart()" style="margin-top:10px;" id="startButton"> Baslat</button>
+        </div>
+        <div class="row" style="margin:100px;">
+            <div class="col-md-12 text-center"><label style="font-size:24px;" id="selectedWord"></label></div>
+        </div>
+        <div class="row">
+            <input class="form-control" id="inputWord" type="text" placeholder="Kelime Giriniz">
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">Kalan Sure: <label id="KalanSure">60</label></div>
+            <div class="col-md-2">DBV: <label id="DBV">0</label></div>
+            <div class="col-md-2">DBK: <label id="DBK">0</label></div>
+            <div class="col-md-2">Dogru: <label id="Dogru">0</label></div>
+            <div class="col-md-2">Yanlıs: <label id="Yanlis">0</label></div>
+            <div class="col-md-2">Toplam: <label id="Toplam">0</label></div>
+
+        </div>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+@section gamejs
+{
+    <script type="text/javascript">
+
+        var words = [];
+        var wordindex;
+        function getWord(){
+            $.ajax({
+                url: "../Game/GetWordsJson",
+                type: "GET",
+                dataType: "Json",
+                success: function (resp) {
+                    $.each(resp, function (i, v) {
+                        words.push(v);
+                    });
+                    $('#selectedWord').empty();
+                    $('#selectedWord').append(words[0]);
+                    wordindex = 0;
+
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+        getWord();
+
+        var second = 60;
+        function GameStart() {
+            if (second == 60) {
+                $('#inputWord').focus();
+                $('#startButton').attr("disabled","");
+
+            }
+            setTimeout(function () {
+                second--;
+                $('#KalanSure').empty();
+                $('#KalanSure').append(second);
+                if (second == 0) {
+                    SetSkor();
+                    alert("Oyun Bitti => DBV=" + $('#DBV').text() + " , DBK=" + $('#DBK').text() + " ,Dogru=" + $('#Dogru').text() + " , Yanlis=" + $('#Yanlis').text() + " , Toplam=" + $('#Toplam').text());
+                    second = 60;
+                    $('#KalanSure').empty();
+                    $('#KalanSure').append(second);
+                    $('#DBV').empty();
+                    $('#DBV').append("0");
+                    $('#DBK').empty();
+                    $('#DBK').append("0");
+                    $('#Dogru').empty();
+                    $('#Dogru').append("0");
+                    $('#Yanlis').empty();
+                    $('#Yanlis').append("0");
+                    $('#Toplam').empty();
+                    $('#Toplam').append("0");
+                    $('#startButton').removeAttr("disabled");
+                    $("#inputWord").val("");
+                    words = [];
+                    getWord();
+                } else {
+                    GameStart();
+                }
+            }, 1000);     // bu bölümlerde sonucların oyun bittikten sonra ekranda gösterilmesi, kelimelerin dogru olup olmadığını bulma işlemleri yer alıyor
+        }
+        function SetSkor() {
+            var skor = {
+                DBV: $('#DBV').text(),
+                DBK: $('#DBK').text(),
+                Toplam: $('#Toplam').text(),
+                Dogru: $('#Dogru').text(),
+                Yanlis: $('#Yanlis').text()
+            };
+
+            $.ajax({
+                url: "../Game/SetSkor",
+                type: "POST",
+                data: skor,
+                dataType: "Json",
+                success: function (resp) {
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+        $("#inputWord").keyup(function () {
+            if (second != 60) {
+                var selectedWord = $("#selectedWord").text();
+                var inputWord = $("#inputWord").val();
+                var insertWord = "";
+                for (var i = 0; i < selectedWord.length; i++) {
+                    if (inputWord[i] == selectedWord[i]) {
+                        insertWord += "<label style='color:green;'>" + selectedWord[i] + "</label>";
+                    } else {
+                        if (inputWord[i] == null || inputWord[i]=="") {
+                            insertWord += "<label style='color:black;'>" + selectedWord[i] + "</label>";
+                        } else {
+                            insertWord += "<label style='color:red;'>" + selectedWord[i] + "</label>";
+                        }
+                    }
+                }
+                $('#selectedWord').empty();
+                $('#selectedWord').append(insertWord);
+                if (inputWord[inputWord.length-1] == " ") {
+                    SkorAppend();
+                    $('#selectedWord').empty();
+                    $('#selectedWord').append(words[wordindex+1]);
+                    wordindex = wordindex + 1;
+                }
+            } else {
+                $("#inputWord").val("");
+            }
+        });
+
+        function SkorAppend() {
+            var selectedWord = $("#selectedWord").text();
+            var inputWord = $("#inputWord").val();
+            if ((selectedWord+" ") == inputWord) {
+                var dogru = $('#Dogru').text();
+                dogru++;
+                $('#Dogru').empty();
+                $('#Dogru').append(dogru);
+            } else {
+                var yanlis = $('#Yanlis').text();
+                yanlis++;
+                $('#Yanlis').empty();
+                $('#Yanlis').append(yanlis);
+            }
+            var toplam = $('#Toplam').text();
+            toplam++;
+            $('#Toplam').empty();
+            $('#Toplam').append(toplam);
+
+            var dbk = $('#DBK').text();
+            dbk++;
+            $('#DBK').empty();
+            $('#DBK').append(dbk);
+
+            var dbv = $('#DBV').text();
+            var newdbv = parseInt(dbv) + inputWord.length - 1;
+            $('#DBV').empty();
+            $('#DBV').append(newdbv);
+
+            $("#inputWord").val("");
+        }
+
+    </script>
+
+}

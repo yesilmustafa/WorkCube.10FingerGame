@@ -1,0 +1,29 @@
+﻿@model WorkCube._10FingerGame.Entity.Entities.User
+@{
+    ViewBag.Title = "Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";  // kullanıcı profil sayfası kullanıcı adı, e-mail ve şifre değiştirme,güncelleme işlemi.
+}                                      
+
+<div class="row">
+    <div class="col-md-4 "></div>
+    <div class="col-md-4 ">
+        <h1 class="text-center login-title">Parmaklarının Gücünü Keşfet</h1>
+        <div class="account-wall">
+            <center>
+                <img class="profile-img" src="../img/img_avatar2.png"
+                     alt="">
+            </center>
+            <form class="form-signin" action="../Game/Profile" method="post">
+                <input type="text" name="username" class="form-control" value="@Model.Name" placeholder="Kullanıcı Adı" required autofocus>
+                <input type="text" name="email" class="form-control" value="@Model.Email" placeholder="Email" required>
+                <input type="password" name="password" class="form-control" value="@Model.Password" placeholder="Şifre" required>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">
+                    Güncele
+                </button>
+                <label class="checkbox pull-left">
+                </label>
+                <a href="#" class="pull-right need-help"></a><span class="clearfix"></span>
+            </form>
+        </div>
+    </div>
+</div>
